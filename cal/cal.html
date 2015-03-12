@@ -80,7 +80,7 @@
         var go = function() {
             var el = document.getElementById('idx1');
             var e2 = document.getElementById('idx2');
-            Calendar.create(el, {
+            Almanac.create(el, {
                 day_post_create: function(el, cdt) {
                     if(cdt.day % 7 == 0) {
                         el.className = 'seven';
@@ -93,7 +93,7 @@
                 tag: 'span'
             });
 
-            Calendar.create(e2, {
+            Almanac.create(e2, {
                 day_post_create: function(el, cdt) {
                     if(cdt.is_current && (cdt.day % 7 == 0 || cdt.day % 3 == 0)) {
                         el.className = 'seven';

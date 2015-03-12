@@ -1,9 +1,9 @@
-;(function(root) {
+;(function(root, undefined) {
     var MONTH_DAYS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
     var DEFAULT_OPTS = {
-        days_of_week: 'Su Mo Tu We Th Fr Sa'.split(' '),
-        month_names:  'January February March April May June July August September October November December'.split(' '),
+        days_of_week: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
+        month_names: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
         day_post_create: null,
         year_range: '-50',
 
@@ -79,8 +79,7 @@
         });
         return hdr;
     };
-    
-    
+
     var parse_year_range = function(val, rel) {
         var end, incr;
         var range = [];
@@ -95,7 +94,7 @@
         console.log('range', range.length);
         return range;
     };
-    
+
     var date_select = function(dt, opts) {
         var i, j, yr, mo, yr_rng;
         var div = DOM.create(opts.selector_tag, {'className': opts.selector_class});
@@ -149,18 +148,18 @@
         return div;
     };
 
-    var CalendarDate = function(year, month, day, is_current) {
+    var AlmanacDay = function(year, month, day, is_current) {
         this.year  = year;
         this.month = month;
         this.day   = day;
         this.is_current = !!is_current;
     };
     
-    CalendarDate.prototype.new_day = function(day) {
-        return new CalendarDate(this.year, this.month, day, this.is_current);
+    AlmanacDay.prototype.new_day = function(day) {
+        return new AlmanacDay(this.year, this.month, day, this.is_current);
     };
     
-    CalendarDate.prototype.prev_month = function() {
+    AlmanacDay.prototype.prev_month = function() {
         var month = this.month, year = this.year;
         if(month == 0) {
             month = 11;
@@ -169,10 +168,10 @@
         else {
             --month;
         }
-        return new CalendarDate(year, month, Utils.last_day(year, month));
+        return new AlmanacDay(year, month, Utils.last_day(year, month));
     };
     
-    CalendarDate.prototype.next_month = function() {
+    AlmanacDay.prototype.next_month = function() {
         var month = this.month, year = this.year;
         if(month == 1) {
             month = 0;
@@ -181,10 +180,10 @@
         else {
             ++month;
         }
-        return new CalendarDate(year, month, 1);
+        return new AlmanacDay(year, month, 1);
     };
     
-    CalendarDate.prototype.toISOString = function() {
+    AlmanacDay.prototype.toISOString = function() {
         return this.year + '-' + Utils.pad(this.month  + 1) + '-' + Utils.pad(this.day);
     };
     
@@ -197,9 +196,9 @@
         return child;
     };
     
-    var calendar_range = function(value) {
+    var almanac_range = function(value) {
         var dt     = value || new Date();
-        var today  = new CalendarDate(dt.getFullYear(), dt.getMonth(), dt.getDate(), true);
+        var today  = new AlmanacDay(dt.getFullYear(), dt.getMonth(), dt.getDate(), true);
         var offset = (new Date(today.year, today.month)).getDay();
         var days   = [];
         var i, j, prev, next;
@@ -228,8 +227,7 @@
     
     var create_days = function(dt, opts) {
         var el = DOM.create(opts.days_tag, {'className': opts.days_class});
-        var cal = calendar_range(dt);
-        opts = opts || {};
+        var cal = almanac_range(dt);
         cal.forEach(function(cdt) {
             var day = calendar_day_element(cdt, opts.day_tag);
             if(opts.day_post_create) {
@@ -240,7 +238,7 @@
         return el;
     };
     
-    root.Calendar = {
+    root.Almanac = {
         create: function(el, opts) {
             var days_el;
             var dt = opts.date || new Date();
@@ -250,8 +248,8 @@
             el.appendChild(weekday_header(opts));
             el.appendChild(create_days(dt, opts));
         },
-        range: calendar_range,
-        Date: CalendarDate,
+        range: almanac_range,
+        Day: AlmanacDay,
         Utils: Utils
     };
 }(this));
