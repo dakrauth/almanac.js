@@ -11,10 +11,10 @@
         body {
             font: 14px Helvetica, Verdana, Arial;
         }
-        .calendar, .calendar  span { border: 1px solid #ccc; }
+        .calendar, .calendar span { border: 1px solid #ccc; }
         .calendar {
             width: 14em;
-            margin: 1em;
+            margin: 1em 0;
             border-bottom: 0; border-left: 0;
             font-size:1.25em;
         }
@@ -35,7 +35,13 @@
         .calendar .days span.seven { background: #d3dd94;}
         .calendar .days span.other { color: #999; font-style: italic; }
         .calendar .weekdays span { font-weight: bold; background-color: #f0f0f0; cursor: default; }
-        .calendar .selector { border-left: 1px solid #ccc; text-align: center; padding: 4px;}
+        .calendar .selector {
+            border-left: 1px solid #ccc;
+            border-bottom: 1px solid #ccc;
+            text-align: center;
+            padding: 4px;
+            background: #aaa;
+        }
         .calendar .selector select { font-size: 2em; vertical-align: middle; margin-right: 4px; }
     </style>
 </head>
@@ -59,28 +65,51 @@
     </div>
     
     <h2>Live</h2>
-    <div class="calendar" id="idx0"></div>
-    <p>
-        <input type="text" value="" id="output">
-    </p>
+    <button id="asdf">Go</button>
+    <div class="calendar" id="idx1"></div>
+    <p><input type="text" value="" id="output1"></p>
+    <hr style="clear:both">
+    <div class="calendar" id="idx2"></div>
+    <p><input type="text" value="" id="output2"></p>
     <script type="text/javascript" charset="utf-8">
         //window.onbeforeunload = function(evt) {
         //    var message = "Navigating away without saving will lose any unsaved changes.\n\nBe sure you saved your changes before leaving this page.";
         //    evt.returnValue = message;
         //    return message;
         //};
-        var el = document.getElementById('idx0');
-        Calendar.create(el, {
-            'day_callback': function(el, cdt) {
-                if(cdt.day % 7 == 0) {
-                    el.className = 'seven';
-                }
-                el.addEventListener('click', function() {
-                    document.getElementById('output').value = cdt.toISOString();
-                }, false);
-            },
-            'tag': 'span'
-        });
+        var go = function() {
+            var el = document.getElementById('idx1');
+            var e2 = document.getElementById('idx2');
+            Calendar.create(el, {
+                day_post_create: function(el, cdt) {
+                    if(cdt.day % 7 == 0) {
+                        el.className = 'seven';
+                    }
+                    el.addEventListener('click', function() {
+                        document.getElementById('output1').value = cdt.toISOString();
+                    }, false);
+                },
+                year_range: '+10',
+                tag: 'span'
+            });
+
+            Calendar.create(e2, {
+                day_post_create: function(el, cdt) {
+                    if(cdt.is_current && (cdt.day % 7 == 0 || cdt.day % 3 == 0)) {
+                        el.className = 'seven';
+                    }
+                    el.addEventListener('click', function() {
+                        document.getElementById('output2').value = cdt.toISOString();
+                    }, false);
+                },
+                year_range: '-25',
+                tag: 'span',
+                date: new Date(2015,3,1)
+            });
+        };
+        
+        document.getElementById('asdf').onclick = go;
+        go();
         
         
     </script>
