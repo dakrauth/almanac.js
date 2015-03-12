@@ -11,7 +11,7 @@
         body {
             font: 14px Helvetica, Verdana, Arial;
         }
-        .calendar, .calendar > .days span { border: 1px solid #ccc; }
+        .calendar, .calendar  span { border: 1px solid #ccc; }
         .calendar {
             width: 14em;
             margin: 1em;
@@ -32,32 +32,14 @@
             border-top: 0; border-right: 0;
         }
         .calendar .days span { cursor: pointer; }
+        .calendar .days span.seven { background: #d3dd94;}
         .calendar .days span.other { color: #999; font-style: italic; }
         .calendar .weekdays span { font-weight: bold; background-color: #f0f0f0; cursor: default; }
         .calendar .selector { border-left: 1px solid #ccc; text-align: center; padding: 4px;}
-        .calendar .selector select { font-size: 2em; vertical-align: middle; }
+        .calendar .selector select { font-size: 2em; vertical-align: middle; margin-right: 4px; }
     </style>
 </head>
 <body>
-    <div class="calendar">
-        <div class="selector">
-            <select><option>March</option></select>
-            <select><option>2015</option></select>
-        </div>
-        <div class="weekdays">
-            <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
-        </div>
-        <div class="days">
-            <span class="other" data-date="2015-04-01">25</span> <span class="other" data-date="2015-04-01">26</span> <span class="other" data-date="2015-04-01">27</span> <span class="other" data-date="2015-04-01">28</span> <span class="other" data-date="2015-04-01">29</span> <span class="other" data-date="2015-04-01">30</span>
-            <span data-date="2015-03-01">1</span> <span data-date="2015-03-02">2</span> <span data-date="2015-03-03">3</span> <span data-date="2015-03-04">4</span> <span data-date="2015-03-05">5</span> <span data-date="2015-03-06">6</span> <span data-date="2015-03-07">7</span>
-            <span data-date="2015-03-08">8</span> <span data-date="2015-03-09">9</span> <span data-date="2015-03-10">10</span> <span data-date="2015-03-11">11</span> <span data-date="2015-03-12">12</span> <span data-date="2015-03-13">13</span> <span data-date="2015-03-14">14</span>
-            <span data-date="2015-03-15">15</span> <span data-date="2015-03-16">16</span> <span data-date="2015-03-17">17</span> <span data-date="2015-03-18">18</span> <span data-date="2015-03-19">19</span> <span data-date="2015-03-20">20</span> <span data-date="2015-03-21">21</span>
-            <span data-date="2015-03-22">22</span> <span data-date="2015-03-23">23</span> <span data-date="2015-03-24">24</span> <span data-date="2015-03-25">25</span> <span data-date="2015-03-26">26</span> <span data-date="2015-03-27">27</span> <span data-date="2015-03-28">28</span>
-            <span data-date="2015-03-29">29</span> <span data-date="2015-03-30">30</span> <span data-date="2015-03-31">31</span>
-            <span class="other" data-date="2015-04-01">1</span> <span class="other" data-date="2015-04-02">2</span> <span class="other" data-date="2015-04-02">3</span> <span class="other" data-date="2015-04-02">4</span> <span class="other" data-date="2015-04-02">5</span>
-        </div>
-    </div>
-    
     <div class="calendar" id="march">
         <div class="selector">
             <select><option>March</option></select>
@@ -89,7 +71,14 @@
         //};
         var el = document.getElementById('idx0');
         Calendar.create(el, {
-            'onclick': function(dt, dts) { document.getElementById('output').value = dts; },
+            'day_callback': function(el, cdt) {
+                if(cdt.day % 7 == 0) {
+                    el.className = 'seven';
+                }
+                el.addEventListener('click', function() {
+                    document.getElementById('output').value = cdt.toISOString();
+                }, false);
+            },
             'tag': 'span'
         });
         

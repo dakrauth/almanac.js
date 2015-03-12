@@ -1,77 +1,129 @@
 ;(function(root) {
-    
+    var MONTH_DAYS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
     var DEFAULT_OPTS = {
         'days_of_week': 'Su Mo Tu We Th Fr Sa'.split(' '),
-        'month_names':  'January February March April May June July August September October November December'.split(' ')
+        'month_names':  'January February March April May June July August September October November December'.split(' '),
+        'day_callback': null,
+        'year_range': '-50'
     }
 
-    var pad = function(i) {
-        return (i < 10 ? '0' : '') + i;
-    };
-    
-    var is_date_instance = function(obj) {
-        return Object.prototype.toString.call(obj) === '[object Date]'
-    };
-    
-    var merge_objects = function() {
-        var merged = {};
-        var obj;
-        console.log(arguments);
-        for(var i = 0; i < arguments.length; i++) {
-            obj = arguments[i];
-            for(var key in obj) {
-                if(obj.hasOwnProperty(key)) {
-                    merged[key] = obj[key];
+    var DOM = {
+        create: function(tag, opts) {
+            var el = document.createElement(tag);
+            for(var key in opts) {
+                if(opts.hasOwnProperty(key)) {
+                    el[key] = opts[key];
                 }
             }
-        }
-        console.log(merged);
-        return merged;
-    };
-    
-    var create_element = function(tag, opts) {
-        var el = document.createElement(tag);
-        for(var key in opts) {
-            if(opts.hasOwnProperty(key)) {
-                el[key] = opts[key];
-            }
-        }
-        return el;
-    };
-    
-    var CalendarUtils = {
-        MONTH_DAYS: [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31],
-        
-        is_leap: function(year) {
-            return year % 4 == 0 && (year % 100 != 0 || year % 400 == 0);
+            return el;
         },
+        option: function(text, value) {
+            return this.create('option', {'textContent': text, 'value': value});
+        }
+    };
 
+    var Utils = {
+        is_leap: function(yr) {
+            return yr % 4 == 0 && (yr % 100 != 0 || yr % 400 == 0);
+        },
         last_day: function(year, month) {
-            return this.MONTH_DAYS[month] + ((month == 1 && this.is_leap(year) ? 1 : 0));
+            return MONTH_DAYS[month] + ((month == 1 && this.is_leap(year) ? 1 : 0));
+        },
+        merge: function() {
+            var merged = {};
+            var obj;
+            for(var i = 0; i < arguments.length; i++) {
+                obj = arguments[i];
+                for(var key in obj) {
+                    if(obj.hasOwnProperty(key)) {
+                        merged[key] = obj[key];
+                    }
+                }
+            }
+            console.log(merged);
+            return merged;
+        },
+        is_date: function(obj) {
+            return Object.prototype.toString.call(obj) === '[object Date]';
+        },
+        is_string: function(obj) {
+            return typeof obj === 'string';
+        },
+        is_array: function(obj) {
+            return Object.prototype.toString.call(obj) === '[object Array]';
+        },
+        pad: function(i) {
+            return (i < 10 ? '0' : '') + i;
         },
         
-        create_element: create_element,
-        
-        merge: merge_objects
+        DOM: DOM
     };
 
     var weekday_header = function(days_of_week) {
-        var hdr = create_element('div', {'className': 'weekdays'});
+        var hdr = DOM.create('div', {'className': 'weekdays'});
         days_of_week = days_of_week || DEFAULT_OPTS.days_of_week;
         days_of_week.forEach(function(name) {
-            hdr.appendChild(create_element('span', {'textContent': name}));
+            hdr.appendChild(DOM.create('span', {'textContent': name}));
         });
         return hdr;
     };
     
-    var month_select = function(month_names) {
-        var div = create_element('div', {'className': 'selector'});
-        var sel = create_element('select')
-        div.appendChild(sel);
-        month_names = month_names || DEFAULT_OPTS.month_names;
-        month_names.forEach(function(name, i) {
-            sel.appendChild(create_element('option', {'textContent': name, 'value': i}));
+    
+    var year_range = function(rel_yr, yr_rng) {
+        var i, start;
+        var neg = false;
+        var range = [];
+        
+        if(Utils.is_string(yr_rng)) {
+            if(yr_rng[0] == '-') {
+                neg = true;
+                yr_rng = yr_rng.substr(1);
+            }
+            if(yr_rng[0] == '+') {
+                yr_rng = yr_rng.substr(1);
+            }
+            for(i = rel_yr - parseInt(yr_rng); i <= rel_yr; i++) {
+                range.push(i);
+            }
+            return range;
+        }
+        
+        if(yr_rng[0] < yr_rng[1]) {
+            yr_rng = [yr_rng[1], yr_rng[0]];
+        }
+        
+        return yr_rng;
+    };
+    
+    var date_select = function(dt, opts) {
+        var i, j, yr, mo, yr_rng;
+        var div = DOM.create('div', {'className': 'selector'}),
+          month = DOM.create('select', {'className': 'month'}),
+           year = DOM.create('select', {'className': 'year'});
+           
+        dt = dt || new Date();
+        mo = dt.getMonth();
+        
+        div.appendChild(month);
+        div.appendChild(year);
+        (opts.month_names || DEFAULT_OPTS.month_names).forEach(function(name, i) {
+            month.appendChild(DOM.option(name, i));
+            if(i == mo) {
+                month.selectedIndex = i;
+            }
         });
+        
+        yr = dt.getFullYear();
+        yr_rng = year_range(yr, opts.year_range || DEFAULT_OPTS.year_range);
+        
+        for(j = 0; j < yr_rng.length; j++) {
+            year.appendChild(DOM.option(yr_rng[j], yr_rng[j]));
+            if(yr_rng[j] == yr) {
+                year.selectedIndex = j;
+            }
+        }
+        
         return div;
     };
 
@@ -95,7 +147,7 @@
         else {
             --month;
         }
-        return new CalendarDate(year, month, CalendarUtils.last_day(year, month));
+        return new CalendarDate(year, month, Utils.last_day(year, month));
     };
     
     CalendarDate.prototype.next_month = function() {
@@ -111,22 +163,18 @@
     };
     
     CalendarDate.prototype.toISOString = function() {
-        return this.year + '-' + pad(this.month  + 1) + '-' + pad(this.day);
+        return this.year + '-' + Utils.pad(this.month  + 1) + '-' + Utils.pad(this.day);
     };
     
-    var calendar_day_element = function(cd, evt_handler, tag) {
-        var child = create_element(tag || 'span', {'textContent': cd.day});
-        if(!cd.is_current) {
+    var calendar_day_element = function(cdt, tag, callback) {
+        var child = DOM.create(tag || 'span', {'textContent': cdt.day});
+        if(!cdt.is_current) {
             child.className = 'other';
         }
-        if(evt_handler) {
-            child.addEventListener('click', function() {
-                var dtstring = this.dataset['date'];
-                var dt = new Date(dtstring);
-                evt_handler(dt, dtstring);
-            }, false);
+        child.dataset['date'] = cdt.toISOString();
+        if(callback) {
+            callback(child, cdt)
         }
-        child.dataset['date'] = cd.toISOString();
         return child;
     };
     
@@ -144,7 +192,7 @@
             }
         }
         
-        for(i = 1, j = CalendarUtils.last_day(today.year, today.month); i <= j; i++ ) {
+        for(i = 1, j = Utils.last_day(today.year, today.month); i <= j; i++ ) {
             days.push(today.new_day(i));
         }
         
@@ -160,22 +208,24 @@
     };
     
     var create_calendar = function(el, opts) {
-        var cal, i, j;
-        var days = create_element('div', {'className': 'days'});
+        var cal, i, j, selectors;
+        var days = DOM.create('div', {'className': 'days'}),
+            dt = opts.date || new Date();
         
-        el.appendChild(month_select());
+        opts = Utils.merge(DEFAULT_OPTS, opts || {});
+        cal = calendar_range(dt);
+        console.log(cal, cal.length % 7, cal.length);
+
+        selectors = date_select(dt, opts);
+        el.appendChild(selectors);
         el.appendChild(weekday_header());
         el.appendChild(days);
 
-        opts = merge_objects(DEFAULT_OPTS, opts || {});
-        cal = calendar_range(opts.date || new Date());
-        console.log(cal, cal.length % 7, cal.length);
-        
         for(i = 0, j = cal.length; i < j; i += 1) {
             days.appendChild(calendar_day_element(
                 cal[i],
-                opts.onclick,
-                opts.tag || 'span'
+                opts.tag || 'span',
+                opts.day_callback
             ));
         }
     };
@@ -184,6 +234,6 @@
         create: create_calendar,
         range: calendar_range,
         Date: CalendarDate,
-        Utils: CalendarUtils
+        Utils: Utils
     };
 }(this));
