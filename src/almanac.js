@@ -187,7 +187,7 @@
         return this.year + '-' + Utils.pad(this.month  + 1) + '-' + Utils.pad(this.day);
     };
     
-    var calendar_day_element = function(cdt, tag) {
+    var almanac_day_element = function(cdt, tag) {
         var child = DOM.create(tag || 'span', {'textContent': cdt.day});
         if(!cdt.is_current) {
             child.className = 'other';
@@ -229,7 +229,7 @@
         var el = DOM.create(opts.days_tag, {'className': opts.days_class});
         var cal = almanac_range(dt);
         cal.forEach(function(cdt) {
-            var day = calendar_day_element(cdt, opts.day_tag);
+            var day = almanac_day_element(cdt, opts.day_tag);
             if(opts.day_post_create) {
                 opts.day_post_create(day, cdt)
             }

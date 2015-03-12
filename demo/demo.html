@@ -10,16 +10,21 @@
         body {
             font: 14px Helvetica, Verdana, Arial;
         }
-        .calendar, .calendar span { border: 1px solid #ccc; }
-        .calendar {
+        .almanac, .almanac span { border: 1px solid #ccc; }
+        .almanac {
             width: 14em;
             margin: 1em 0;
             border-bottom: 0; border-left: 0;
             font-size:1.25em;
         }
-        .calendar:before, .calendar:after { content: " "; display: table; }
-        .calendar:after { clear: both; }
-        .calendar .days span, .calendar .weekdays span {
+        .almanac.almanac-lg { width: 100%;}
+        .almanac.almanac-lg .days span, .almanac.almanac-lg .weekdays span {
+            width: 14.2857143%;
+        }
+        
+        .almanac:before, .almanac:after { content: " "; display: table; }
+        .almanac:after { clear: both; }
+        .almanac .days span, .almanac .weekdays span {
             color: #333;
             display: inline-block;
             box-sizing: border-box;
@@ -30,22 +35,22 @@
             text-align: center;
             border-top: 0; border-right: 0;
         }
-        .calendar .days span { cursor: pointer; }
-        .calendar .days span.seven { background: #d3dd94;}
-        .calendar .days span.other { color: #999; font-style: italic; }
-        .calendar .weekdays span { font-weight: bold; background-color: #f0f0f0; cursor: default; }
-        .calendar .selector {
+        .almanac .days span { cursor: pointer; }
+        .almanac .days span.seven { background: #d3dd94;}
+        .almanac .days span.other { color: #999; font-style: italic; }
+        .almanac .weekdays span { font-weight: bold; background-color: #f0f0f0; cursor: default; }
+        .almanac .selector {
             border-left: 1px solid #ccc;
             border-bottom: 1px solid #ccc;
             text-align: center;
             padding: 4px;
             background: #aaa;
         }
-        .calendar .selector select { font-size: 2em; vertical-align: middle; margin-right: 4px; }
+        .almanac .selector select { font-size: 2em; vertical-align: middle; margin-right: 4px; }
     </style>
 </head>
 <body>
-    <div class="calendar" id="march">
+    <div class="almanac" id="march">
         <div class="selector">
             <select><option>March</option></select>
             <select><option>2015</option></select>
@@ -64,12 +69,14 @@
     </div>
     
     <h2>Live</h2>
-    <button id="asdf">Go</button>
-    <div class="calendar" id="idx1"></div>
+    <!-- button id="asdf">Go</button -->
+    <div class="almanac" id="idx1"></div>
     <p><input type="text" value="" id="output1"></p>
     <hr style="clear:both">
-    <div class="calendar" id="idx2"></div>
+    
+    <div class="almanac almanac-lg" id="idx2"></div>
     <p><input type="text" value="" id="output2"></p>
+    
     <script src="../src/almanac.js"></script>
     <script type="text/javascript" charset="utf-8">
         //window.onbeforeunload = function(evt) {
@@ -108,7 +115,7 @@
             });
         };
         
-        document.getElementById('asdf').onclick = go;
+        // document.getElementById('asdf').onclick = go;
         go();
         
         
