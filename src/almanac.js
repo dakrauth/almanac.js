@@ -1,4 +1,5 @@
-;(function(root, undefined) {
+/* @preserve Version 0.1, Copyright (c) 2015 David A Krauth */
+;(function(root) {
     var MONTH_DAYS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
     var DEFAULT_OPTS = {
@@ -96,12 +97,11 @@
         for(; rel != end; rel += incr) {
             range.push(rel);
         }
-        console.log('range', range.length);
         return range;
     };
 
     var date_select = function(dt, opts) {
-        var i, j, yr, mo, yr_rng;
+        var j, yr, mo, yr_rng;
         var div = DOM.create(opts.selector_tag, {'className': opts.selector_class});
         var month = DOM.create('select', {'className': opts.selector_month_class});
         var year = DOM.create('select', {'className': opts.selector_year_class});
@@ -115,7 +115,6 @@
             var month = parseInt(month_sel.value);
             var year =  parseInt(year_sel.value);
             var dt = new Date(year, month);
-            console.log('date', dt);
             container.replaceChild(create_days(dt, opts), month_el);
         };
         
@@ -260,7 +259,6 @@
     
     root.Almanac = {
         create: function(el, opts) {
-            var days_el;
             var dt = opts.date || new Date();
             opts = Utils.merge(DEFAULT_OPTS, opts || {});
 
