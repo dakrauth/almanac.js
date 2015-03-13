@@ -10,21 +10,17 @@
         body {
             font: 14px Helvetica, Verdana, Arial;
         }
-        .almanac, .almanac span { border: 1px solid #ccc; }
         .almanac {
             width: 14em;
             margin: 1em 0;
-            border-bottom: 0; border-left: 0;
+            border: 1px solid #ccc;
+            border-left: none;
             font-size:1.25em;
-        }
-        .almanac.almanac-lg { width: 100%;}
-        .almanac.almanac-lg .days span, .almanac.almanac-lg .weekdays span {
-            width: 14.2857143%;
         }
         
         .almanac:before, .almanac:after { content: " "; display: table; }
         .almanac:after { clear: both; }
-        .almanac .days span, .almanac .weekdays span {
+        .almanac .weekdays span, .almanac .month .week .day {
             color: #333;
             display: inline-block;
             box-sizing: border-box;
@@ -33,38 +29,80 @@
             height: 2em;
             line-height: 2em;
             text-align: center;
-            border-top: 0; border-right: 0;
-        }
-        .almanac .days span { cursor: pointer; }
-        .almanac .days span.seven { background: #d3dd94;}
-        .almanac .days span.other { color: #999; font-style: italic; }
-        .almanac .weekdays span { font-weight: bold; background-color: #f0f0f0; cursor: default; }
-        .almanac .selector {
             border-left: 1px solid #ccc;
-            border-bottom: 1px solid #ccc;
+        }
+        .almanac .weekdays span { font-weight: bold; background-color: #f0f0f0; cursor: default; }
+
+        .almanac .month .week .day { cursor: pointer; border-top: 1px solid #ccc; }
+        .almanac .month .week .day:hover { background-color: #eee; }
+        .almanac .month .week .day.other { color: #999; font-style: italic; }
+        
+        .almanac .selector {
             text-align: center;
             padding: 4px;
             background: #aaa;
         }
         .almanac .selector select { font-size: 2em; vertical-align: middle; margin-right: 4px; }
+
+
+        .almanac.almanac-lg { width: 100%;}
+        .almanac.almanac-lg table.month { width: 100%; border-collapse: collapse; }
+        .almanac.almanac-lg .month .week .day { min-height:4em; }
+        .almanac.almanac-lg .month .week .day, .almanac.almanac-lg .weekdays span { width: 14.2857143%; }
+
+        .seven { background: #d3dd94;}
     </style>
 </head>
 <body>
     <div class="almanac" id="march">
-        <div class="selector">
-            <select><option>March</option></select>
-            <select><option>2015</option></select>
-        </div>
-        <div class="weekdays">
-            <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
-        </div>
-        <div class="days">
-            <span data-date="2015-03-01">1</span> <span data-date="2015-03-02">2</span> <span data-date="2015-03-03">3</span> <span data-date="2015-03-04">4</span> <span data-date="2015-03-05">5</span> <span data-date="2015-03-06">6</span> <span data-date="2015-03-07">7</span>
-            <span data-date="2015-03-08">8</span> <span data-date="2015-03-09">9</span> <span data-date="2015-03-10">10</span> <span data-date="2015-03-11">11</span> <span data-date="2015-03-12">12</span> <span data-date="2015-03-13">13</span> <span data-date="2015-03-14">14</span>
-            <span data-date="2015-03-15">15</span> <span data-date="2015-03-16">16</span> <span data-date="2015-03-17">17</span> <span data-date="2015-03-18">18</span> <span data-date="2015-03-19">19</span> <span data-date="2015-03-20">20</span> <span data-date="2015-03-21">21</span>
-            <span data-date="2015-03-22">22</span> <span data-date="2015-03-23">23</span> <span data-date="2015-03-24">24</span> <span data-date="2015-03-25">25</span> <span data-date="2015-03-26">26</span> <span data-date="2015-03-27">27</span> <span data-date="2015-03-28">28</span>
-            <span data-date="2015-03-29">29</span> <span data-date="2015-03-30">30</span> <span data-date="2015-03-31">31</span>
-            <span class="other" data-date="2015-04-01">1</span> <span class="other" data-date="2015-04-02">2</span> <span class="other" data-date="2015-04-02">3</span> <span class="other" data-date="2015-04-02">4</span>
+        <div class="selector"><select><option>March</option></select><select><option>2015</option></select></div>
+        <div class="weekdays"><span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span></div>
+        <div class="month">
+            <div class="week">
+                <div class="day"><span class="day-num" data-date="2015-03-01">1</span></div>
+                <div class="day"><span class="day-num" data-date="2015-03-02">2</span></div>
+                <div class="day"><span class="day-num" data-date="2015-03-03">3</span></div>
+                <div class="day"><span class="day-num" data-date="2015-03-04">4</span></div>
+                <div class="day"><span class="day-num" data-date="2015-03-05">5</span></div>
+                <div class="day"><span class="day-num" data-date="2015-03-06">6</span></div>
+                <div class="day"><span class="day-num" data-date="2015-03-07">7</span></div>
+            </div>
+            <div class="week">
+                <div class="day"><span class="day-num" data-date="2015-03-08">8</span></div>
+                <div class="day"><span class="day-num" data-date="2015-03-09">9</span></div>
+                <div class="day"><span class="day-num" data-date="2015-03-10">10</span></div>
+                <div class="day"><span class="day-num" data-date="2015-03-11">11</span></div>
+                <div class="day"><span class="day-num" data-date="2015-03-12">12</span></div>
+                <div class="day"><span class="day-num" data-date="2015-03-13">13</span></div>
+                <div class="day"><span class="day-num" data-date="2015-03-14">14</span></div>
+            </div>
+            <div class="week">
+                <div class="day"><span class="day-num" data-date="2015-03-15">15</span></div>
+                <div class="day"><span class="day-num" data-date="2015-03-16">16</span></div>
+                <div class="day"><span class="day-num" data-date="2015-03-17">17</span></div>
+                <div class="day"><span class="day-num" data-date="2015-03-18">18</span></div>
+                <div class="day"><span class="day-num" data-date="2015-03-19">19</span></div>
+                <div class="day"><span class="day-num" data-date="2015-03-20">20</span></div>
+                <div class="day"><span class="day-num" data-date="2015-03-21">21</span></div>
+            </div>
+            <div class="week">
+                <div class="day"><span class="day-num" data-date="2015-03-22">22</span></div>
+                <div class="day"><span class="day-num" data-date="2015-03-23">23</span></div>
+                <div class="day"><span class="day-num" data-date="2015-03-24">24</span></div>
+                <div class="day"><span class="day-num" data-date="2015-03-25">25</span></div>
+                <div class="day"><span class="day-num" data-date="2015-03-26">26</span></div>
+                <div class="day"><span class="day-num" data-date="2015-03-27">27</span></div>
+                <div class="day"><span class="day-num" data-date="2015-03-28">28</span></div>
+            </div>
+            <div class="week">
+                <div class="day"><span class="day-num" data-date="2015-03-29">29</span></div>
+                <div class="day"><span class="day-num" data-date="2015-03-30">30</span></div>
+                <div class="day"><span class="day-num" data-date="2015-03-31">31</span></div>
+                <div class="day other next"><span class="day-num" data-date="2015-04-01">1</span></div>
+                <div class="day other next"><span class="day-num" data-date="2015-04-02">2</span></div>
+                <div class="day other next"><span class="day-num" data-date="2015-04-02">3</span></div>
+                <div class="day other next"><span class="day-num" data-date="2015-04-02">4</span></div>
+            </div>
         </div>
     </div>
     
@@ -87,31 +125,32 @@
         var go = function() {
             var el = document.getElementById('idx1');
             var e2 = document.getElementById('idx2');
+            var special1 = function(el, cdt) {
+                if(cdt.day % 7 == 0) {
+                    el.className += ' seven';
+                }
+            }
+            var special2 = function(el, cdt) {
+                if(cdt.is_current && (cdt.day % 7 == 0 || cdt.day % 3 == 0)) {
+                    el.className += ' seven';
+                }
+            };
+            
             Almanac.create(el, {
-                day_post_create: function(el, cdt) {
-                    if(cdt.day % 7 == 0) {
-                        el.className = 'seven';
-                    }
-                    el.addEventListener('click', function() {
-                        document.getElementById('output1').value = cdt.toISOString();
-                    }, false);
-                },
+                day_post_create: special1,
+                day_onclick: function() { document.getElementById('output1').value = this.dataset['date']; },
                 year_range: '+10',
                 tag: 'span'
             });
 
             Almanac.create(e2, {
-                day_post_create: function(el, cdt) {
-                    if(cdt.is_current && (cdt.day % 7 == 0 || cdt.day % 3 == 0)) {
-                        el.className = 'seven';
-                    }
-                    el.addEventListener('click', function() {
-                        document.getElementById('output2').value = cdt.toISOString();
-                    }, false);
-                },
+                date: new Date(2015,3,1),
+                day_post_create: special2,
+                day_onclick: 'output2',
                 year_range: '-25',
-                tag: 'span',
-                date: new Date(2015,3,1)
+                month_tag: 'table',
+                week_tag: 'tr',
+                day_tag: 'td',
             });
         };
         

@@ -7,9 +7,14 @@
         day_post_create: null,
         year_range: '-50',
 
-        day_tag: 'span',
-        days_tag: 'div',
-        days_class: 'days',
+        month_tag: 'div',
+        month_class: 'month',
+        week_tag: 'div',
+        week_class: 'week',
+        day_tag: 'div',
+        day_class: 'day',
+        day_num_tag: 'span',
+        day_num_class: 'day-num',
         
         weekday_wrapper_tag: 'div',
         weekday_wrapper_class: 'weekdays',
@@ -187,15 +192,6 @@
         return this.year + '-' + Utils.pad(this.month  + 1) + '-' + Utils.pad(this.day);
     };
     
-    var almanac_day_element = function(cdt, tag) {
-        var child = DOM.create(tag || 'span', {'textContent': cdt.day});
-        if(!cdt.is_current) {
-            child.className = 'other';
-        }
-        child.dataset['date'] = cdt.toISOString();
-        return child;
-    };
-    
     var almanac_range = function(value) {
         var dt     = value || new Date();
         var today  = new AlmanacDay(dt.getFullYear(), dt.getMonth(), dt.getDate(), true);
@@ -226,16 +222,40 @@
     };
     
     var create_days = function(dt, opts) {
-        var el = DOM.create(opts.days_tag, {'className': opts.days_class});
+        var cdt, week_el, day_el;
+        var month_el = DOM.create(opts.month_tag, {'className': opts.month_class});
         var cal = almanac_range(dt);
-        cal.forEach(function(cdt) {
-            var day = almanac_day_element(cdt, opts.day_tag);
-            if(opts.day_post_create) {
-                opts.day_post_create(day, cdt)
+        for(var i = 0; i < cal.length; i++) {
+            cdt = cal[i];
+            if(i % 7 == 0) {
+                week_el = DOM.create(opts.week_tag, {'className': opts.week_class})
+                month_el.appendChild(week_el);
             }
-            el.appendChild(day);
-        });
-        return el;
+            day_el = DOM.create(opts.day_tag, {'className': opts.day_class});
+            if(!cdt.is_current) {
+                day_el.className += ' other';
+            }
+            
+            if(opts.day_onclick) {
+                if(Utils.is_string(opts.day_onclick)) {
+                    day_el.addEventListener('click', function() {
+                        document.getElementById(opts.day_onclick).value = this.dataset['date'];
+                    }, false);
+                }
+                else {
+                    day_el.addEventListener('click', opts.day_onclick, false);
+                }
+            }
+            
+            day_el.appendChild(DOM.create(opts.day_num_tag, {'className': opts.day_num_class,'textContent': cdt.day}));
+            day_el.dataset['date'] = cdt.toISOString();
+            week_el.appendChild(day_el);
+            
+            if(opts.day_post_create) {
+                opts.day_post_create(day_el, cdt)
+            }
+        }
+        return month_el;
     };
     
     root.Almanac = {
