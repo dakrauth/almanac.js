@@ -22,8 +22,8 @@
         
         selector_tag: 'div',
         selector_class: 'selector',
-        selector_month_class: 'month',
-        selector_year_class: 'year'
+        selector_month_class: 'month-select',
+        selector_year_class: 'year-select'
     };
 
     var DOM = {
@@ -107,16 +107,16 @@
         var year = DOM.create('select', {'className': opts.selector_year_class});
         
         var onchange = function() {
-            var month_el = this.parentElement.querySelector('select[data-type="month"]');
-            var year_el = this.parentElement.querySelector('select[data-type="year"]');
+            var month_sel = this.parentElement.querySelector('select[data-type="month"]');
+            var year_sel = this.parentElement.querySelector('select[data-type="year"]');
             var container = this.parentElement.parentElement;
-            var days_el = container.querySelector('.' + opts.days_class);
+            var month_el = container.querySelector('.' + opts.month_class);
             
-            var month = parseInt(month_el.value);
-            var year =  parseInt(year_el.value);
+            var month = parseInt(month_sel.value);
+            var year =  parseInt(year_sel.value);
             var dt = new Date(year, month);
             console.log('date', dt);
-            container.replaceChild(create_days(dt, opts), days_el);
+            container.replaceChild(create_days(dt, opts), month_el);
         };
         
         month.dataset['type'] = 'month';
