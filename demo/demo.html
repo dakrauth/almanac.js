@@ -7,50 +7,47 @@
     <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
     <style type="text/css" media="screen">
-        body {
-            font: 14px Helvetica, Verdana, Arial;
-        }
+        body { font: 14px Helvetica, Verdana, Arial; }
         .almanac {
             width: 14em;
             margin: 1em 0;
             border: 1px solid #ccc;
             border-left: none;
-            font-size:1.25em;
+            font-size: 1.25em;
         }
         
         .almanac:before, .almanac:after { content: " "; display: table; }
         .almanac:after { clear: both; }
         .almanac .weekdays span, .almanac .month .week .day {
-            color: #333;
-            display: inline-block;
             box-sizing: border-box;
-            float:left;
             width: 2em;
-            height: 2em;
+            color: #333;
             line-height: 2em;
             text-align: center;
             border-left: 1px solid #ccc;
         }
+        .almanac .weekdays span, .almanac div.month div.week div.day {
+            float:left;
+            display: inline-block;
+            height: 2em;
+        }
+        .almanac table.month td { height: 4em; }
+        .day > p { margin: 0; line-height: 1.2em;}
         .almanac .weekdays span { font-weight: bold; background-color: #f0f0f0; cursor: default; }
 
         .almanac .month .week .day { cursor: pointer; border-top: 1px solid #ccc; }
         .almanac .month .week .day:hover { background-color: #eee; }
         .almanac .month .week .day.other { color: #999; font-style: italic; }
         
-        .almanac .selector {
-            text-align: center;
-            padding: 4px;
-            background: #aaa;
-        }
+        .almanac .selector { text-align: center; padding: 4px; background: #aaa; }
         .almanac .selector select { font-size: 2em; vertical-align: middle; margin-right: 4px; }
-
 
         .almanac.almanac-lg { width: 100%;}
         .almanac.almanac-lg table.month { width: 100%; border-collapse: collapse; }
         .almanac.almanac-lg .month .week .day { min-height:4em; }
         .almanac.almanac-lg .month .week .day, .almanac.almanac-lg .weekdays span { width: 14.2857143%; }
 
-        .seven { background: #d3dd94;}
+        .special { background: #d3dd94;}
     </style>
 </head>
 <body>
@@ -125,18 +122,33 @@
         var go = function() {
             var el = document.getElementById('idx1');
             var e2 = document.getElementById('idx2');
+            var today = new Date();
+            var key = today.getFullYear() + '-' + Almanac.Utils.pad(today.getMonth() + 1) + '-' + Almanac.Utils.pad(today.getDate());
             var special1 = function(el, cdt) {
                 if(cdt.day % 7 == 0) {
-                    el.className += ' seven';
+                    el.className += ' special';
                 }
-            }
+            };
+            
+            var special2_data = {};
+            special2_data[key] = 'Here<br>it<br>is';
+            console.log(special2_data);
+            
             var special2 = function(el, cdt) {
+                var s = cdt.toISOString();
+                var p;
                 if(cdt.is_current && (cdt.day % 7 == 0 || cdt.day % 3 == 0)) {
-                    el.className += ' seven';
+                    el.className += ' special';
+                }
+                if(special2_data.hasOwnProperty(s)) {
+                    console.log(s);
+                    p = Almanac.Utils.DOM.create('p', {'innerHTML': special2_data[s]})
+                    el.appendChild(p);
                 }
             };
             
             Almanac.create(el, {
+                date: new Date(2015,3,1),
                 day_post_create: special1,
                 day_onclick: function() { document.getElementById('output1').value = this.dataset['date']; },
                 year_range: '+10',
@@ -144,7 +156,6 @@
             });
 
             Almanac.create(e2, {
-                date: new Date(2015,3,1),
                 day_post_create: special2,
                 day_onclick: 'output2',
                 year_range: '-25',
