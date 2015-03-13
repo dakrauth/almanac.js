@@ -31,21 +31,32 @@
             display: inline-block;
             height: 2em;
         }
-        .almanac table.month td { height: 4em; }
-        .day > p { margin: 0; line-height: 1.2em;}
+        .almanac table.month td { height: 4em; vertical-align: top; padding: 0;}
+        .almanac table.month td .day-num {
+            float: right;
+            display: inline-block;
+            font-size: 75%;
+            width: 1.5em;
+            height: 1.5em;
+            line-height: 1.67em;
+            color: #fff;
+            background-color: #9aa16c;
+            border-bottom-left-radius: .75em;
+        }
+        .day > p { margin: 0 1.5em 0 0; line-height: 1.2em;}
         .almanac .weekdays span { font-weight: bold; background-color: #f0f0f0; cursor: default; }
 
         .almanac .month .week .day { cursor: pointer; border-top: 1px solid #ccc; }
         .almanac .month .week .day:hover { background-color: #eee; }
         .almanac .month .week .day.other { color: #999; font-style: italic; }
         
-        .almanac .selector { text-align: center; padding: 4px; background: #aaa; }
+        .almanac .selector { text-align: center; padding: 4px; background: #9aa16c; }
         .almanac .selector select { font-size: 2em; vertical-align: middle; margin-right: 4px; }
 
         .almanac.almanac-lg { width: 100%;}
         .almanac.almanac-lg table.month { width: 100%; border-collapse: collapse; }
-        .almanac.almanac-lg .month .week .day { min-height:4em; }
-        .almanac.almanac-lg .month .week .day, .almanac.almanac-lg .weekdays span { width: 14.2857143%; }
+        .almanac.almanac-lg .month .week .day,
+            .almanac.almanac-lg .weekdays span { width: 14.2857143%; }
 
         .special { background: #d3dd94;}
     </style>
