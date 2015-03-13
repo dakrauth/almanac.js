@@ -51,6 +51,8 @@
     </style>
 </head>
 <body>
+    <h1>Almanac Demo</h1>
+    <h2>Static</h2>
     <div class="almanac" id="march">
         <div class="selector"><select><option>March</option></select><select><option>2015</option></select></div>
         <div class="weekdays"><span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span></div>
@@ -103,12 +105,14 @@
         </div>
     </div>
     
-    <h2>Live</h2>
-    <!-- button id="asdf">Go</button -->
+    <h2>Generated <button disabled="disabled" id="asdf">Generate</button></h2>
+    
+    <h3>Example 1</h3>
     <div class="almanac" id="idx1"></div>
     <p><input type="text" value="" id="output1"></p>
     <hr style="clear:both">
     
+    <h3>Example 2</h3>
     <div class="almanac almanac-lg" id="idx2"></div>
     <p><input type="text" value="" id="output2"></p>
     
@@ -119,7 +123,7 @@
         //    evt.returnValue = message;
         //    return message;
         //};
-        var go = function() {
+        var generate = function() {
             var el = document.getElementById('idx1');
             var e2 = document.getElementById('idx2');
             var today = new Date();
@@ -165,10 +169,8 @@
             });
         };
         
-        // document.getElementById('asdf').onclick = go;
-        go();
-        
-        
+        document.getElementById('asdf').onclick = generate;
+        generate();
     </script>
 </body>
 </html>
