@@ -1,5 +1,5 @@
 /* @preserve Version 0.1, Copyright (c) 2015 David A Krauth */
-;(function(root) {
+;Almanac = (function(root) {
     var MONTH_DAYS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
     var DEFAULT_OPTS = {
@@ -28,11 +28,17 @@
     };
 
     var DOM = {
-        create: function(tag, opts) {
+        create: function(tag, opts, children) {
+            var i = 0;
             var el = document.createElement(tag);
             for(var key in opts) {
                 if(opts.hasOwnProperty(key)) {
                     el[key] = opts[key];
+                }
+            }
+            if(children) {
+                while(i < children.length) {
+                    el.appendChild(children[i++])
                 }
             }
             return el;
@@ -62,6 +68,9 @@
             }
             return merged;
         },
+        iso_string: function(dt) {
+            return dt.getFullYear() + '-' + Utils.pad(dt.getMonth() + 1) + '-' + Utils.pad(dt.getDate());
+        },
         is_date: function(obj) {
             return Object.prototype.toString.call(obj) === '[object Date]';
         },
@@ -78,14 +87,6 @@
         DOM: DOM
     };
 
-    var weekday_header = function(opts) {
-        var hdr = DOM.create(opts.weekday_wrapper_tag, {className: opts.weekday_wrapper_class});
-        opts.days_of_week.forEach(function(name) {
-            hdr.appendChild(DOM.create(opts.weekday_tag, {'textContent': name}));
-        });
-        return hdr;
-    };
-
     var parse_year_range = function(val, rel) {
         var end, incr;
         var range = [];
@@ -100,59 +101,71 @@
         return range;
     };
 
-    var date_select = function(dt, opts) {
-        var j, yr, mo, yr_rng;
-        var div = DOM.create(opts.selector_tag, {'className': opts.selector_class});
-        var month = DOM.create('select', {'className': opts.selector_month_class});
-        var year = DOM.create('select', {'className': opts.selector_year_class});
-        
-        var onchange = function() {
+    var create_weekday_header_elements = function(opts) {
+        var el = DOM.create(opts.weekday_wrapper_tag, {className: opts.weekday_wrapper_class});
+        opts.days_of_week.forEach(function(name) {
+            el.appendChild(DOM.create(opts.weekday_tag, {'textContent': name}));
+        });
+        return el;
+    };
+
+    var make_selector_change_handler = function(opts) {
+        return function() {
             var month_sel = this.parentElement.querySelector('select[data-type="month"]');
             var year_sel = this.parentElement.querySelector('select[data-type="year"]');
             var container = this.parentElement.parentElement;
             var month_el = container.querySelector('.' + opts.month_class);
-            
+        
             var month = parseInt(month_sel.value);
             var year =  parseInt(year_sel.value);
             var dt = new Date(year, month);
-            container.replaceChild(create_days(dt, opts), month_el);
+            container.replaceChild(create_days_elements(dt, opts), month_el);
         };
-        
-        month.dataset['type'] = 'month';
-        month.addEventListener('change', onchange, false);
-        
-        year.dataset['type'] = 'year';
-        year.addEventListener('change', onchange, false);
-        
-        dt = dt || new Date();
-        mo = dt.getMonth();
-        
-        div.appendChild(month);
-        div.appendChild(year);
+    };
+    
+    var make_month_selector = function(mo, opts) {
+        var el = DOM.create('select', {'className': opts.selector_month_class});
+        el.dataset['type'] = 'month';
+        el.addEventListener('change', make_selector_change_handler(opts), false);
         opts.month_names.forEach(function(name, i) {
-            month.appendChild(DOM.option(name, i));
+            el.appendChild(DOM.option(name, i));
             if(i == mo) {
-                month.selectedIndex = i;
+                el.selectedIndex = i;
             }
         });
+        return el;
+    };
+    
+    var make_year_selector = function(year, opts) {
+        var i = 0;
+        var el = DOM.create('select', {'className': opts.selector_year_class});
+        var year_range = opts.year_range;
+        el.dataset['type'] = 'year';
+        el.addEventListener('change', make_selector_change_handler(opts), false);
         
-        yr = dt.getFullYear();
-        yr_rng = opts.year_range || DEFAULT_OPTS.year_range, yr
-        if(Utils.is_string(yr_rng)) {
-            yr_rng = parse_year_range(yr_rng, yr);
+        if(Utils.is_string(year_range)) {
+            year_range = parse_year_range(year_range, year);
         }
         
-        for(j = 0; j < yr_rng.length; j++) {
-            year.appendChild(DOM.option(yr_rng[j], yr_rng[j]));
-            if(yr_rng[j] == yr) {
-                year.selectedIndex = j;
+        for(; i < year_range.length; i++) {
+            el.appendChild(DOM.option(year_range[i], year_range[i]));
+            if(year_range[i] == year) {
+                el.selectedIndex = i;
             }
         }
-        
-        return div;
+        return el;
+    };
+    
+    var create_date_selectors_elements = function(dt, opts) {
+        var el = DOM.create(opts.selector_tag, {'className': opts.selector_class});
+        el.appendChild(make_month_selector(dt.getMonth(), opts));
+        el.appendChild(make_year_selector(dt.getFullYear(), opts));
+        return el;
     };
 
     var AlmanacDay = function(year, month, day, is_current) {
+        this.date = new Date(year, month, day);
+        this.day_of_week = this.date.getDay();
         this.year  = year;
         this.month = month;
         this.day   = day;
@@ -220,8 +233,34 @@
         return days;
     };
     
-    var create_days = function(dt, opts) {
-        var cdt, week_el, day_el;
+    var create_day_element = function(cdt, opts) {
+        var el = DOM.create(opts.day_tag, {'className': opts.day_class});
+        if(!cdt.is_current) {
+            el.className += ' other';
+        }
+        
+        if(opts.day_onclick) {
+            if(Utils.is_string(opts.day_onclick)) {
+                el.addEventListener('click', function() {
+                    document.getElementById(opts.day_onclick).value = this.dataset['date'];
+                }, false);
+            }
+            else {
+                el.addEventListener('click', opts.day_onclick, false);
+            }
+        }
+        
+        el.appendChild(DOM.create(opts.day_num_tag, {'className': opts.day_num_class,'textContent': cdt.day}));
+        el.dataset['date'] = cdt.toISOString();
+        if(opts.day_post_create) {
+            opts.day_post_create(el, cdt)
+        }
+        
+        return el;
+    };
+    
+    var create_days_elements = function(dt, opts) {
+        var cdt, week_el;
         var month_el = DOM.create(opts.month_tag, {'className': opts.month_class});
         var cal = almanac_range(dt);
         for(var i = 0; i < cal.length; i++) {
@@ -230,44 +269,25 @@
                 week_el = DOM.create(opts.week_tag, {'className': opts.week_class})
                 month_el.appendChild(week_el);
             }
-            day_el = DOM.create(opts.day_tag, {'className': opts.day_class});
-            if(!cdt.is_current) {
-                day_el.className += ' other';
-            }
             
-            if(opts.day_onclick) {
-                if(Utils.is_string(opts.day_onclick)) {
-                    day_el.addEventListener('click', function() {
-                        document.getElementById(opts.day_onclick).value = this.dataset['date'];
-                    }, false);
-                }
-                else {
-                    day_el.addEventListener('click', opts.day_onclick, false);
-                }
-            }
-            
-            day_el.appendChild(DOM.create(opts.day_num_tag, {'className': opts.day_num_class,'textContent': cdt.day}));
-            day_el.dataset['date'] = cdt.toISOString();
-            week_el.appendChild(day_el);
-            
-            if(opts.day_post_create) {
-                opts.day_post_create(day_el, cdt)
-            }
+            week_el.appendChild(create_day_element(cdt, opts));
         }
         return month_el;
     };
     
-    root.Almanac = {
-        create: function(el, opts) {
-            var dt = opts.date || new Date();
-            opts = Utils.merge(DEFAULT_OPTS, opts || {});
+    var initialize = function(el, opts) {
+        var dt = opts.date || new Date();
+        opts = Utils.merge(DEFAULT_OPTS, opts || {});
 
-            el.appendChild(date_select(dt, opts));
-            el.appendChild(weekday_header(opts));
-            el.appendChild(create_days(dt, opts));
-        },
+        el.appendChild(create_date_selectors_elements(dt, opts));
+        el.appendChild(create_weekday_header_elements(opts));
+        el.appendChild(create_days_elements(dt, opts));
+    };
+    
+    return {
+        initialize: initialize,
         range: almanac_range,
         Day: AlmanacDay,
         Utils: Utils
     };
-}(this));
+}());

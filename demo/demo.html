@@ -138,16 +138,14 @@
             var el = document.getElementById('idx1');
             var e2 = document.getElementById('idx2');
             var today = new Date();
-            var key = today.getFullYear() + '-' + Almanac.Utils.pad(today.getMonth() + 1) + '-' + Almanac.Utils.pad(today.getDate());
+            var key = Almanac.Utils.iso_string(today);
+            var special2_data = {};
+
             var special1 = function(el, cdt) {
                 if(cdt.day % 7 == 0) {
                     el.className += ' special';
                 }
             };
-            
-            var special2_data = {};
-            special2_data[key] = 'Here<br>it<br>is';
-            console.log(special2_data);
             
             var special2 = function(el, cdt) {
                 var s = cdt.toISOString();
@@ -161,8 +159,11 @@
                     el.appendChild(p);
                 }
             };
+
+            special2_data[key] = 'Here<br>it<br>is';
+            console.log(special2_data);
             
-            Almanac.create(el, {
+            Almanac.initialize(el, {
                 date: new Date(2015,3,1),
                 day_post_create: special1,
                 day_onclick: function() { document.getElementById('output1').value = this.dataset['date']; },
@@ -170,7 +171,7 @@
                 tag: 'span'
             });
 
-            Almanac.create(e2, {
+            Almanac.initialize(e2, {
                 day_post_create: special2,
                 day_onclick: 'output2',
                 year_range: '-25',
