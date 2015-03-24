@@ -10,7 +10,6 @@
         body { font: 14px Helvetica, Verdana, Arial; }
         .almanac {
             width: 14em;
-            margin: 1em 0;
             border: 1px solid #ccc;
             border-left: none;
             font-size: 1.25em;
@@ -52,20 +51,49 @@
         
         .almanac .selector { text-align: center; padding: 4px; background: #9aa16c; }
         .almanac .selector select { font-size: 2em; vertical-align: middle; margin-right: 4px; }
-
+        .almanac .selector a { text-decoration: none; color: #fff; }
+        .almanac .selector a:first-child { float: left; }
+        .almanac .selector a:last-child { float: right; }
         .almanac.almanac-lg { width: 100%;}
         .almanac.almanac-lg table.month { width: 100%; border-collapse: collapse; }
         .almanac.almanac-lg .month .week .day,
             .almanac.almanac-lg .weekdays span { width: 14.2857143%; }
 
         .special { background: #d3dd94;}
+        hr { 
+            border: 0;
+            height: 1px;
+            background-image: -webkit-linear-gradient(left, rgba(0,0,0,0.125), rgba(0,0,0,0.75), rgba(0,0,0,0.125));
+            background-image:    -moz-linear-gradient(left, rgba(0,0,0,0.125), rgba(0,0,0,0.75), rgba(0,0,0,0.125));
+            background-image:     -ms-linear-gradient(left, rgba(0,0,0,0.125), rgba(0,0,0,0.75), rgba(0,0,0,0.125));
+            background-image:         linear-gradient(left, rgba(0,0,0,0.125), rgba(0,0,0,0.75), rgba(0,0,0,0.125));
+        }
+        
+        #id_ex2 { display: none; }
+        .almanac-container {
+            position: relative;
+        }
+        .almanac-container input {
+            width: 100px;
+        }
+        .almanac-container .almanac {
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: #fff;
+        }
     </style>
 </head>
 <body>
     <h1>Almanac Demo</h1>
     <h2>Static</h2>
     <div class="almanac" id="march">
-        <div class="selector"><select><option>March</option></select><select><option>2015</option></select></div>
+        <div class="selector">
+            <a href="#">&larr;</a>
+            <select><option>March</option></select>
+            <select><option>2015</option></select>
+            <a href="#">&rarr;</a>
+        </div>
         <div class="weekdays"><span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span></div>
         <div class="month">
             <div class="week">
@@ -115,17 +143,31 @@
             </div>
         </div>
     </div>
+    <hr>
     
     <h2>Generated <button disabled="disabled" id="asdf">Generate</button></h2>
     
-    <h3>Example 1</h3>
-    <div class="almanac" id="idx1"></div>
-    <p><input type="text" value="" id="output1"></p>
-    <hr style="clear:both">
+    <div class="example">
+        <h3>Example 1</h3>
+        <div class="almanac" id="id_ex1"></div>
+        <p><input type="text" value="" id="output1"></p>
+        <hr>
+    </div>
+
+    <div class="example">
+        <h3>Example 2</h3>
+        <div class="almanac-container">
+            <input type="text" value="" id="output2">
+            <div class="almanac" id="id_ex2"></div>
+        </div>
+        <hr>
+    </div>
     
-    <h3>Example 2</h3>
-    <div class="almanac almanac-lg" id="idx2"></div>
-    <p><input type="text" value="" id="output2"></p>
+    <div class="example">
+        <h3>Example 3</h3>
+        <div class="almanac almanac-lg" id="id_ex3"></div>
+        <p><input type="text" value="" id="output3"></p>
+    </div>
     
     <script src="../src/almanac.js"></script>
     <script type="text/javascript" charset="utf-8">
@@ -135,11 +177,12 @@
         //    return message;
         //};
         var generate = function() {
-            var el = document.getElementById('idx1');
-            var e2 = document.getElementById('idx2');
+            var el = document.getElementById('id_ex1');
+            var e2 = document.getElementById('id_ex2');
+            var e3 = document.getElementById('id_ex3');
             var today = new Date();
             var key = Almanac.Utils.iso_string(today);
-            var special2_data = {};
+            var special3_data = {};
 
             var special1 = function(el, cdt) {
                 if(cdt.day % 7 == 0) {
@@ -147,22 +190,25 @@
                 }
             };
             
-            var special2 = function(el, cdt) {
+            var special3 = function(el, cdt) {
                 var s = cdt.toISOString();
-                var p;
+                var child;
                 if(cdt.is_current && (cdt.day % 7 == 0 || cdt.day % 3 == 0)) {
                     el.className += ' special';
                 }
-                if(special2_data.hasOwnProperty(s)) {
-                    console.log(s);
-                    p = Almanac.Utils.DOM.create('p', {'innerHTML': special2_data[s]})
-                    el.appendChild(p);
+                if(special3_data.hasOwnProperty(s)) {
+                    child = Almanac.Utils.DOM.create('p');
+                    child.innerHTML = special3_data[s];
+                    console.log(child);
+                    
+                    el.appendChild(child);
                 }
             };
 
-            special2_data[key] = 'Here<br>it<br>is';
-            console.log(special2_data);
-            
+            document.getElementById('output2').addEventListener('click', function() {
+                e2.style.display = 'block';
+            }, false);
+
             Almanac.initialize(el, {
                 date: new Date(2015,3,1),
                 day_post_create: special1,
@@ -172,8 +218,17 @@
             });
 
             Almanac.initialize(e2, {
-                day_post_create: special2,
-                day_onclick: 'output2',
+                day_onclick: function() {
+                    document.getElementById('output2').value = this.dataset['date'];
+                    e2.style.display = 'none';
+                },
+                year_range: '-75'
+            });
+            
+            special3_data[key] = 'Here<br>it<br>is';
+            Almanac.initialize(e3, {
+                day_post_create: special3,
+                day_onclick: 'output3',
                 year_range: '-25',
                 month_tag: 'table',
                 week_tag: 'tr',

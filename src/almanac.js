@@ -28,23 +28,34 @@
     };
 
     var DOM = {
-        create: function(tag, opts, children) {
-            var i = 0;
+        create: function(tag) {
+            var j, key, arg;
             var el = document.createElement(tag);
-            for(var key in opts) {
-                if(opts.hasOwnProperty(key)) {
-                    el[key] = opts[key];
+            for(var i = 1; i < arguments.length; i++) {
+                arg = arguments[i];
+                if(Utils.is_array(arg)) {
+                    for(j = 0; j < arg.length; j++) {
+                        el.appendChild(arg[j]);
+                    }
                 }
-            }
-            if(children) {
-                while(i < children.length) {
-                    el.appendChild(children[i++])
+                else if(Utils.is_object(arg)) {
+                    for(key in arg) {
+                        if(el.hasOwnProperty(key)) {
+                            el[key] = arg[key];
+                        }
+                        else {
+                            el.setAttribute(key, arg[key])
+                        }
+                    }
+                }
+                else if(arg){
+                    el.textContent = arg.toString();
                 }
             }
             return el;
         },
         option: function(text, value) {
-            return this.create('option', {'textContent': text, 'value': value});
+            return this.create('option', text, {'value': value});
         }
     };
 
@@ -68,8 +79,17 @@
             }
             return merged;
         },
+        is_object: function(obj) {
+            return Object.prototype.toString.call(obj) === '[object Object]';
+        },
         iso_string: function(dt) {
-            return dt.getFullYear() + '-' + Utils.pad(dt.getMonth() + 1) + '-' + Utils.pad(dt.getDate());
+            var day = dt.getDate();
+            var mon = dt.getMonth() + 1;
+            return (
+                  dt.getFullYear()
+                + '-' + (mon < 10 ? '0' + mon : mon)
+                + '-' + (day < 10 ? '0' + day : day)
+            );
         },
         is_date: function(obj) {
             return Object.prototype.toString.call(obj) === '[object Date]';
@@ -80,10 +100,6 @@
         is_array: function(obj) {
             return Object.prototype.toString.call(obj) === '[object Array]';
         },
-        pad: function(i) {
-            return (i < 10 ? '0' : '') + i;
-        },
-        
         DOM: DOM
     };
 
@@ -102,9 +118,9 @@
     };
 
     var create_weekday_header_elements = function(opts) {
-        var el = DOM.create(opts.weekday_wrapper_tag, {className: opts.weekday_wrapper_class});
+        var el = DOM.create(opts.weekday_wrapper_tag, {'class': opts.weekday_wrapper_class});
         opts.days_of_week.forEach(function(name) {
-            el.appendChild(DOM.create(opts.weekday_tag, {'textContent': name}));
+            el.appendChild(DOM.create(opts.weekday_tag, name));
         });
         return el;
     };
@@ -120,11 +136,15 @@
             var year =  parseInt(year_sel.value);
             var dt = new Date(year, month);
             container.replaceChild(create_days_elements(dt, opts), month_el);
+            container.setAttribute('data-date', Utils.iso_string(dt));
         };
     };
     
+    var on_other_month = function() {
+    };
+    
     var make_month_selector = function(mo, opts) {
-        var el = DOM.create('select', {'className': opts.selector_month_class});
+        var el = DOM.create('select', {'class': opts.selector_month_class});
         el.dataset['type'] = 'month';
         el.addEventListener('change', make_selector_change_handler(opts), false);
         opts.month_names.forEach(function(name, i) {
@@ -138,7 +158,7 @@
     
     var make_year_selector = function(year, opts) {
         var i = 0;
-        var el = DOM.create('select', {'className': opts.selector_year_class});
+        var el = DOM.create('select', {'class': opts.selector_year_class});
         var year_range = opts.year_range;
         el.dataset['type'] = 'year';
         el.addEventListener('change', make_selector_change_handler(opts), false);
@@ -157,22 +177,23 @@
     };
     
     var create_date_selectors_elements = function(dt, opts) {
-        var el = DOM.create(opts.selector_tag, {'className': opts.selector_class});
+        var el = DOM.create(opts.selector_tag, {'class': opts.selector_class});
         el.appendChild(make_month_selector(dt.getMonth(), opts));
         el.appendChild(make_year_selector(dt.getFullYear(), opts));
         return el;
     };
 
     var AlmanacDay = function(year, month, day, is_current) {
-        this.date = new Date(year, month, day);
+        this.date        = new Date(year, month, day);
         this.day_of_week = this.date.getDay();
-        this.year  = year;
-        this.month = month;
-        this.day   = day;
-        this.is_current = !!is_current;
+        this.year        = year;
+        this.month       = month;
+        this.day         = day;
+        this.last_day    = Utils.last_day(year, month);
+        this.is_current  = !!is_current;
     };
     
-    AlmanacDay.prototype.new_day = function(day) {
+    AlmanacDay.prototype.replace = function(day) {
         return new AlmanacDay(this.year, this.month, day, this.is_current);
     };
     
@@ -185,7 +206,7 @@
         else {
             --month;
         }
-        return new AlmanacDay(year, month, Utils.last_day(year, month));
+        return new AlmanacDay(year, month, this.last_day);
     };
     
     AlmanacDay.prototype.next_month = function() {
@@ -201,7 +222,7 @@
     };
     
     AlmanacDay.prototype.toISOString = function() {
-        return this.year + '-' + Utils.pad(this.month  + 1) + '-' + Utils.pad(this.day);
+        return Utils.iso_string(this.date);
     };
     
     var almanac_range = function(value) {
@@ -214,19 +235,19 @@
         if(offset) {
             prev = today.prev_month();
             for(i = (prev.day - offset) + 1, j = prev.day; i <= j; i++) {
-                days.push(prev.new_day(i));
+                days.push(prev.replace(i));
             }
         }
         
         for(i = 1, j = Utils.last_day(today.year, today.month); i <= j; i++ ) {
-            days.push(today.new_day(i));
+            days.push(today.replace(i));
         }
         
         offset = days.length % 7;
         if(offset) {
             next = today.next_month();
             for(i = 1, j = (7 - offset); i <= j; i++) {
-                days.push(next.new_day(i))
+                days.push(next.replace(i))
             }
         }
 
@@ -234,7 +255,7 @@
     };
     
     var create_day_element = function(cdt, opts) {
-        var el = DOM.create(opts.day_tag, {'className': opts.day_class});
+        var el = DOM.create(opts.day_tag, {'class': opts.day_class});
         if(!cdt.is_current) {
             el.className += ' other';
         }
@@ -250,7 +271,7 @@
             }
         }
         
-        el.appendChild(DOM.create(opts.day_num_tag, {'className': opts.day_num_class,'textContent': cdt.day}));
+        el.appendChild(DOM.create(opts.day_num_tag, {'class': opts.day_num_class}, cdt.day));
         el.dataset['date'] = cdt.toISOString();
         if(opts.day_post_create) {
             opts.day_post_create(el, cdt)
@@ -261,12 +282,12 @@
     
     var create_days_elements = function(dt, opts) {
         var cdt, week_el;
-        var month_el = DOM.create(opts.month_tag, {'className': opts.month_class});
+        var month_el = DOM.create(opts.month_tag, {'class': opts.month_class});
         var cal = almanac_range(dt);
         for(var i = 0; i < cal.length; i++) {
             cdt = cal[i];
             if(i % 7 == 0) {
-                week_el = DOM.create(opts.week_tag, {'className': opts.week_class})
+                week_el = DOM.create(opts.week_tag, {'class': opts.week_class})
                 month_el.appendChild(week_el);
             }
             
@@ -279,6 +300,7 @@
         var dt = opts.date || new Date();
         opts = Utils.merge(DEFAULT_OPTS, opts || {});
 
+        el.setAttribute('data-date', Utils.iso_string(dt));
         el.appendChild(create_date_selectors_elements(dt, opts));
         el.appendChild(create_weekday_header_elements(opts));
         el.appendChild(create_days_elements(dt, opts));
