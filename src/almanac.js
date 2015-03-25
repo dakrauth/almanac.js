@@ -1,7 +1,7 @@
 /* @preserve Version 0.1, Copyright (c) 2015 David A Krauth */
 ;Almanac = (function(root) {
     var MONTH_DAYS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-
+    var KEY_ESC = 27;
     var DEFAULT_OPTS = {
         days_of_week: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
         month_names: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
@@ -56,6 +56,12 @@
         },
         option: function(text, value) {
             return this.create('option', text, {'value': value});
+        },
+        display_element: function(el, yesno) {
+            if(typeof el === 'string') {
+                el = document.getElementById(el);
+            }
+            el.style.display = yesno ? 'block' : 'none';
         }
     };
 
@@ -99,8 +105,7 @@
         },
         is_array: function(obj) {
             return Object.prototype.toString.call(obj) === '[object Array]';
-        },
-        DOM: DOM
+        }
     };
 
     var parse_year_range = function(val, rel) {
@@ -296,6 +301,58 @@
         return month_el;
     };
     
+    var dismiss_on_escape = function(id) {
+        document.addEventListener('keyup', function(evt) {
+            if(evt.keyCode === KEY_ESC) {
+                DOM.display_element(id, false);
+            }
+        }, false);
+    };
+    
+    var dismiss_by_clicking_away = function(id) {
+        document.addEventListener('click', function(evt) {
+            var el = document.getElementById(id);
+            var r = el.getBoundingClientRect(),
+                x = evt.clientX,
+                y = evt.clientY;
+
+            var contains = (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom);
+            console.log('contains', contains);
+            if(!contains && el.style.block !== 'none') {
+                DOM.display_element(el, false);
+            }
+        }, false);
+        
+    };
+    
+    var popout_decorator = function(element_id, output_id, default_handler) {
+        return function() {
+            var el;
+            if(default_handler && false === default_handler()) {
+                return;
+            }
+            DOM.display_element(element_id, false);
+            el = document.getElementById(output_id);
+            el.value = this.dataset['date'];
+            el.focus();
+        };
+    };
+    
+    var popout = function(element_id, output_id, opts) {
+        var almanac_el = document.getElementById(element_id);
+        document.getElementById(output_id).addEventListener('click', function() {
+            DOM.display_element(element_id, true);
+            this.blur();
+        }, false);
+        
+        dismiss_on_escape(element_id);
+        dismiss_by_clicking_away(element_id);
+
+        opts = opts || {};
+        opts.day_onclick = popout_decorator(element_id, output_id, opts.day_onclick);
+        Almanac.initialize(almanac_el, opts);
+    };
+    
     var initialize = function(el, opts) {
         var dt = opts.date || new Date();
         opts = Utils.merge(DEFAULT_OPTS, opts || {});
@@ -308,8 +365,10 @@
     
     return {
         initialize: initialize,
+        popout: popout,
         range: almanac_range,
         Day: AlmanacDay,
-        Utils: Utils
+        Utils: Utils,
+        DOM: DOM
     };
 }());

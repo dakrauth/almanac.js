@@ -178,9 +178,9 @@
         //    evt.returnValue = message;
         //    return message;
         //};
+        
         var generate = function() {
             var el = document.getElementById('id_ex1');
-            var e2 = document.getElementById('id_ex2');
             var e3 = document.getElementById('id_ex3');
             var today = new Date();
             var key = Almanac.Utils.iso_string(today);
@@ -199,7 +199,7 @@
                     el.className += ' special';
                 }
                 if(special3_data.hasOwnProperty(s)) {
-                    child = Almanac.Utils.DOM.create('p');
+                    child = Almanac.DOM.create('p');
                     child.innerHTML = special3_data[s];
                     console.log(child);
                     
@@ -207,25 +207,7 @@
                 }
             };
 
-            document.getElementById('output2').addEventListener('click', function() {
-                e2.style.display = 'block';
-            }, false);
-            
-            document.addEventListener('keyup', function(evt) {
-                if(evt.keyCode === 27) {
-                    e2.style.display = 'none';
-                }
-            }, false);
-            document.addEventListener('click', function(evt) {
-                var r = e2.getBoundingClientRect();
-                var x = evt.clientX, y = evt.clientY;
-                var contains = (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom);
-                console.log('contains', contains);
-                if(!contains && e2.style.block !== 'none') {
-                    e2.style.display = 'none';
-                }
-            });
-            
+            Almanac.popout('id_ex2', 'output2', {year_range: '-75'});
             Almanac.initialize(el, {
                 date: new Date(2015,3,1),
                 day_post_create: special1,
@@ -234,14 +216,6 @@
                 tag: 'span'
             });
 
-            Almanac.initialize(e2, {
-                day_onclick: function() {
-                    document.getElementById('output2').value = this.dataset['date'];
-                    e2.style.display = 'none';
-                },
-                year_range: '-75'
-            });
-            
             special3_data[key] = 'Here<br>it<br>is';
             Almanac.initialize(e3, {
                 day_post_create: special3,
