@@ -60,29 +60,22 @@
             .almanac.almanac-lg .weekdays span { width: 14.2857143%; }
 
         .special { background: #d3dd94;}
-        hr { 
+        hr {
             border: 0;
             height: 1px;
-            background-image: -webkit-linear-gradient(left, rgba(0,0,0,0.125), rgba(0,0,0,0.75), rgba(0,0,0,0.125));
-            background-image:    -moz-linear-gradient(left, rgba(0,0,0,0.125), rgba(0,0,0,0.75), rgba(0,0,0,0.125));
-            background-image:     -ms-linear-gradient(left, rgba(0,0,0,0.125), rgba(0,0,0,0.75), rgba(0,0,0,0.125));
-            background-image:         linear-gradient(left, rgba(0,0,0,0.125), rgba(0,0,0,0.75), rgba(0,0,0,0.125));
+            background-image: -webkit-linear-gradient(left, rgba(0,0,0,0.75), rgba(0,0,0,0));
+            background-image:    -moz-linear-gradient(left, rgba(0,0,0,0.75), rgba(0,0,0,0));
+            background-image:     -ms-linear-gradient(left, rgba(0,0,0,0.75), rgba(0,0,0,0));
+            background-image:         linear-gradient(left, rgba(0,0,0,0.75), rgba(0,0,0,0));
         }
         
-        #id_ex2 { display: none; }
-        .almanac-container {
-            position: relative;
-        }
-        .almanac-container input {
-            width: 100px;
-        }
+        .almanac-container { position: relative; }
+        .almanac-container input { width: 100px; }
         .almanac-container .almanac {
             position: absolute;
             left: 0;
             top: 0;
-            display: none;
             background: #fff;
-            transition: opacity 2s;
         }
     </style>
 </head>
@@ -160,7 +153,7 @@
         <h3>Example 2</h3>
         <div class="almanac-container">
             <input type="text" value="" id="output2">
-            <div class="almanac" id="id_ex2"></div>
+            <div class="almanac" id="id_ex2" style="display:none"></div>
         </div>
         <hr>
     </div>
