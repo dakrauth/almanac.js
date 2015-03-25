@@ -1,5 +1,5 @@
 /* @preserve Version 0.1, Copyright (c) 2015 David A Krauth */
-;Almanac = (function(root) {
+;Almanac = (function() {
     var MONTH_DAYS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
     var KEY_ESC = 27;
     var DEFAULT_OPTS = {
@@ -145,8 +145,7 @@
         };
     };
     
-    var on_other_month = function() {
-    };
+    // var on_other_month = function() { };
     
     var make_month_selector = function(mo, opts) {
         var el = DOM.create('select', {'class': opts.selector_month_class});
@@ -230,7 +229,7 @@
         return Utils.iso_string(this.date);
     };
     
-    var almanac_range = function(value) {
+    AlmanacDay.range = function(value) {
         var dt     = value || new Date();
         var today  = new AlmanacDay(dt.getFullYear(), dt.getMonth(), dt.getDate(), true);
         var offset = (new Date(today.year, today.month)).getDay();
@@ -288,7 +287,7 @@
     var create_days_elements = function(dt, opts) {
         var cdt, week_el;
         var month_el = DOM.create(opts.month_tag, {'class': opts.month_class});
-        var cal = almanac_range(dt);
+        var cal = AlmanacDay.range(dt);
         for(var i = 0; i < cal.length; i++) {
             cdt = cal[i];
             if(i % 7 == 0) {
@@ -338,7 +337,17 @@
         };
     };
     
-    var popout = function(element_id, output_id, opts) {
+    var initialize_almanac = function(el, opts) {
+        var dt = opts.date || new Date();
+        opts = Utils.merge(DEFAULT_OPTS, opts || {});
+
+        el.setAttribute('data-date', Utils.iso_string(dt));
+        el.appendChild(create_date_selectors_elements(dt, opts));
+        el.appendChild(create_weekday_header_elements(opts));
+        el.appendChild(create_days_elements(dt, opts));
+    };
+
+    var popout_almanac = function(element_id, output_id, opts) {
         var almanac_el = document.getElementById(element_id);
         document.getElementById(output_id).addEventListener('click', function() {
             DOM.display_element(element_id, true);
@@ -350,23 +359,12 @@
 
         opts = opts || {};
         opts.day_onclick = popout_decorator(element_id, output_id, opts.day_onclick);
-        Almanac.initialize(almanac_el, opts);
-    };
-    
-    var initialize = function(el, opts) {
-        var dt = opts.date || new Date();
-        opts = Utils.merge(DEFAULT_OPTS, opts || {});
-
-        el.setAttribute('data-date', Utils.iso_string(dt));
-        el.appendChild(create_date_selectors_elements(dt, opts));
-        el.appendChild(create_weekday_header_elements(opts));
-        el.appendChild(create_days_elements(dt, opts));
+        initialize_almanac(almanac_el, opts);
     };
     
     return {
-        initialize: initialize,
-        popout: popout,
-        range: almanac_range,
+        initialize: initialize_almanac,
+        popout: popout_almanac,
         Day: AlmanacDay,
         Utils: Utils,
         DOM: DOM
