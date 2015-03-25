@@ -80,7 +80,9 @@
             position: absolute;
             left: 0;
             top: 0;
+            display: none;
             background: #fff;
+            transition: opacity 2s;
         }
     </style>
 </head>
@@ -208,7 +210,22 @@
             document.getElementById('output2').addEventListener('click', function() {
                 e2.style.display = 'block';
             }, false);
-
+            
+            document.addEventListener('keyup', function(evt) {
+                if(evt.keyCode === 27) {
+                    e2.style.display = 'none';
+                }
+            }, false);
+            document.addEventListener('click', function(evt) {
+                var r = e2.getBoundingClientRect();
+                var x = evt.clientX, y = evt.clientY;
+                var contains = (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom);
+                console.log('contains', contains);
+                if(!contains && e2.style.block !== 'none') {
+                    e2.style.display = 'none';
+                }
+            });
+            
             Almanac.initialize(el, {
                 date: new Date(2015,3,1),
                 day_post_create: special1,
