@@ -24,7 +24,10 @@
         selector_tag: 'div',
         selector_class: 'selector',
         selector_month_class: 'month-select',
-        selector_year_class: 'year-select'
+        selector_year_class: 'year-select',
+        
+        show_cancel: false,
+        footer_class: 'footer'
     };
 
     var DOM = {
@@ -300,6 +303,18 @@
         return month_el;
     };
     
+    var create_footer_element = function(opts) {
+        var el = DOM.create('div', {'class': opts.footer_class});
+        var a = DOM.create('a', 'Cancel', {'href': '#'});
+        a.addEventListener('click', function(evt) {
+            DOM.display_element(el.parentElement, false);
+            evt.stopPropagation();
+            evt.preventDefault();
+        }, false);
+        el.appendChild(a);
+        return el;
+    };
+    
     var dismiss_on_escape = function(id) {
         document.addEventListener('keyup', function(evt) {
             if(evt.keyCode === KEY_ESC) {
@@ -345,6 +360,10 @@
         el.appendChild(create_date_selectors_elements(dt, opts));
         el.appendChild(create_weekday_header_elements(opts));
         el.appendChild(create_days_elements(dt, opts));
+        if(opts.show_cancel) {
+            el.appendChild(create_footer_element(opts));
+        }
+        
     };
 
     var popout_almanac = function(element_id, output_id, opts) {
@@ -357,7 +376,6 @@
         dismiss_on_escape(element_id);
         dismiss_by_clicking_away(element_id);
 
-        opts = opts || {};
         opts.day_onclick = popout_decorator(element_id, output_id, opts.day_onclick);
         initialize_almanac(almanac_el, opts);
     };
