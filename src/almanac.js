@@ -7,6 +7,7 @@
         month_names: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
         day_post_create: null,
         year_range: '-50',
+        show_other_month_days: true,
 
         month_tag: 'div',
         month_class: 'month',
@@ -263,23 +264,30 @@
     
     var create_day_element = function(cdt, opts) {
         var el = DOM.create(opts.day_tag, {'class': opts.day_class});
+        var active = cdt.is_current || opts.show_other_month_days;
         if(!cdt.is_current) {
             el.className += ' other';
         }
         
-        if(opts.day_onclick) {
-            if(Utils.is_string(opts.day_onclick)) {
-                el.addEventListener('click', function() {
-                    document.getElementById(opts.day_onclick).value = this.dataset['date'];
-                }, false);
-            }
-            else {
-                el.addEventListener('click', opts.day_onclick, false);
+        if(active) {
+            el.dataset['date'] = cdt.toISOString();
+            if(opts.day_onclick) {
+                if(Utils.is_string(opts.day_onclick)) {
+                    el.addEventListener('click', function() {
+                        document.getElementById(opts.day_onclick).value = this.dataset['date'];
+                    }, false);
+                }
+                else {
+                    el.addEventListener('click', opts.day_onclick, false);
+                }
             }
         }
         
-        el.appendChild(DOM.create(opts.day_num_tag, {'class': opts.day_num_class}, cdt.day));
-        el.dataset['date'] = cdt.toISOString();
+        el.appendChild(DOM.create(opts.day_num_tag, 
+            {'class': opts.day_num_class},
+            active ? cdt.day : ''
+        ));
+        
         if(opts.day_post_create) {
             opts.day_post_create(el, cdt)
         }

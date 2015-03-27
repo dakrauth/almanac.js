@@ -119,7 +119,7 @@
             var special3_data = {};
 
             var special1 = function(el, cdt) {
-                if(cdt.day % 7 == 0) {
+                if(cdt.is_current && cdt.day % 7 == 0) {
                     el.className += ' special';
                 }
             };
@@ -145,7 +145,8 @@
                 day_post_create: special1,
                 day_onclick: function() { document.getElementById('output1').value = this.dataset['date']; },
                 year_range: '+10',
-                tag: 'span'
+                tag: 'span',
+                show_other_month_days: false
             });
 
             special3_data[key] = 'Here<br>it<br>is';
