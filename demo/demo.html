@@ -8,7 +8,7 @@
     <![endif]-->
     <link rel="stylesheet" href="../src/almanac.css" type="text/css">
     <style type="text/css" media="screen">
-        body { font: 14px Helvetica, Verdana, Arial; }
+        body { font: 12px Helvetica, Verdana, Arial; }
         .special { background: #d3dd94;}
         .almanac.my-almanac .selector { background: #9aa16c; }
         .almanac.my-almanac table.month td .day-num { background-color: #9aa16c; }
@@ -126,16 +126,16 @@
             
             var special3 = function(el, cdt) {
                 var s = cdt.toISOString();
-                var child;
+                var ul;
                 if(cdt.is_current && (cdt.day % 7 == 0 || cdt.day % 3 == 0)) {
                     el.className += ' special';
                 }
                 if(special3_data.hasOwnProperty(s)) {
-                    child = Almanac.DOM.create('p');
-                    child.innerHTML = special3_data[s];
-                    console.log(child);
-                    
-                    el.appendChild(child);
+                    ul = Almanac.DOM.create('ul');
+                    special3_data[s].forEach(function(txt) {
+                        ul.appendChild(Almanac.DOM.create('li', txt));
+                    });
+                    el.appendChild(ul);
                 }
             };
 
@@ -149,7 +149,7 @@
                 show_other_month_days: false
             });
 
-            special3_data[key] = 'Here<br>it<br>is';
+            special3_data[key] = ['This is the title for event #1', 'Event #2', 'Event #3'];
             Almanac.initialize(e3, {
                 day_post_create: special3,
                 day_onclick: 'output3',

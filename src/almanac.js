@@ -362,16 +362,18 @@
     
     var initialize_almanac = function(el, opts) {
         var dt = opts.date || new Date();
+        var doc_frag = document.createDocumentFragment();
         opts = Utils.merge(DEFAULT_OPTS, opts || {});
 
         el.setAttribute('data-date', Utils.iso_string(dt));
-        el.appendChild(create_date_selectors_elements(dt, opts));
-        el.appendChild(create_weekday_header_elements(opts));
-        el.appendChild(create_days_elements(dt, opts));
-        if(opts.show_cancel) {
-            el.appendChild(create_footer_element(opts));
-        }
         
+        doc_frag.appendChild(create_date_selectors_elements(dt, opts));
+        doc_frag.appendChild(create_weekday_header_elements(opts));
+        doc_frag.appendChild(create_days_elements(dt, opts));
+        if(opts.show_cancel) {
+            doc_frag.appendChild(create_footer_element(opts));
+        }
+        el.appendChild(doc_frag);
     };
 
     var popout_almanac = function(element_id, output_id, opts) {

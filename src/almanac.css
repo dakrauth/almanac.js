@@ -77,12 +77,17 @@
     .almanac.almanac-lg .weekdays span {
         width: 14.2857143%;
     }
-.almanac.almanac-lg .day > p {
-    margin: 0 1.5em 0 0;
-    line-height: 1.2em;
+.almanac.almanac-lg .day ul {
+    margin: 1.5em 0 0 0;
+    line-height: 1.125em;
+    padding-left: 1.125em;
+    text-align: left;
+}
+.almanac.almanac-lg .day ul li {
+    white-space: nowrap;
 }
 .almanac table.month td {
-    height: 4em;
+    height: 6em;
     vertical-align: top;
     padding: 0;
 }
@@ -90,9 +95,9 @@
     float: right;
     display: inline-block;
     font-size: 75%;
-    width: 1.5em;
-    height: 1.5em;
-    line-height: 1.67em;
+    width: 1.25rem;
+    height: 1.25rem;
+    line-height: 1.75em;
     color: #fff;
     background-color: #999;
     border-bottom-left-radius: .75em;
